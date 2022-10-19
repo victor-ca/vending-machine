@@ -1,1 +1,5 @@
-<p>vending-machine works!</p>
+<ng-container *ngIf="(productsForSale$ | async)! as products">
+  <div *ngFor="let p; in: products">
+    <a>{{ p.name }} | {{ p.amountAvailable }}| ${{ p.cost }}</a>
+  </div>
+</ng-container>
