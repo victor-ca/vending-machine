@@ -1,0 +1,20 @@
+<ng-container *ngIf="formState$ | async as formState">
+  <form novalidate [ngrxFormState]="formState">
+    <label>
+      Name
+      <input [ngrxFormControlState]="formState.controls.name" type="text" />
+    </label>
+    <label>
+      Cost
+      <input [ngrxFormControlState]="formState.controls.cost" type="number" />
+    </label>
+    <label>
+      Amount
+      <input
+        [ngrxFormControlState]="formState.controls.amountAvailable"
+        type="number"
+      />
+    </label>
+    <button (click)="create()">Create</button>
+  </form>
+</ng-container>

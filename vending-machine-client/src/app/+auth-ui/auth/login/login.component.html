@@ -1,0 +1,16 @@
+<ng-container *ngIf="formState$ | async as formState">
+  <form novalidate [ngrxFormState]="formState">
+    <label>
+      Username
+      <input [ngrxFormControlState]="formState.controls.userName" type="text" />
+    </label>
+    <label>
+      Pass
+      <input
+        [ngrxFormControlState]="formState.controls.password"
+        type="password"
+      />
+    </label>
+    <button (click)="login()">Login</button>
+  </form>
+</ng-container>

@@ -1,0 +1,8 @@
+<div *ngFor="let p of ownedProducts$ | async">
+  <a [routerLink]="['.', p.name]"
+    >{{ p.name }} | {{ p.amountAvailable }}| ${{ p.cost }}</a
+  >
+</div>
+<div>
+  <router-outlet></router-outlet>
+</div>
