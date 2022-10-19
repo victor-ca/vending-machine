@@ -1,5 +1,6 @@
-import { createReducer } from '@ngrx/store';
-import { VendingMachineState } from './vending-machine.store';
+import { createReducer, on } from '@ngrx/store';
+import { insertCoinActions } from './vending-machine.actions';
+import { CoinKey, VendingMachineState } from './vending-machine.store';
 
 const initialState: VendingMachineState = {
   coinBank: {
@@ -12,5 +13,13 @@ const initialState: VendingMachineState = {
   productsForSale: [],
 };
 
-export const vendingMachineReducer =
-  createReducer<VendingMachineState>(initialState);
+export const vendingMachineReducer = createReducer<VendingMachineState>(
+  initialState,
+  on(insertCoinActions.start, (s, { denomination }) => ({
+    ...s,
+    coinBank: {
+      ...s.coinBank,
+      [denomination]: s.coinBank[denomination as CoinKey] + 1,
+    },
+  }))
+);

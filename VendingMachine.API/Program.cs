@@ -3,6 +3,7 @@ using  Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using VendingMachine.API;
 using VendingMachine.Auth;
 using VendingMachine.Domain;
 using VendingMachine.Domain.User;

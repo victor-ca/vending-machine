@@ -8,7 +8,7 @@ public class VendingMachineDbContextFactory: IDesignTimeDbContextFactory<Vending
     public VendingMachineDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<VendingMachineDbContext>()
-            .UseSqlite("DataSource=./db.sqlite");
+            .UseSqlite("DataSource=../db.sqlite");
         
         var context = new VendingMachineDbContext(optionsBuilder.Options);
         // context.Database.Migrate();

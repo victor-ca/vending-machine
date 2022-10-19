@@ -20,6 +20,6 @@ obj/
 [Rr]elease*/
 _ReSharper*/
 /.idea
-/VendingMachine.API/db.sqlite*
 node_modules
 .vscode
+db.sqlite*

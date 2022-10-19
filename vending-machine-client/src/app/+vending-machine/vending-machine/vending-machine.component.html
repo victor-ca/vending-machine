@@ -1,5 +1,13 @@
 <ng-container *ngIf="(productsForSale$ | async)! as products">
-  <div *ngFor="let p; in: products">
+  <div *ngFor="let p of products">
     <a>{{ p.name }} | {{ p.amountAvailable }}| ${{ p.cost }}</a>
+  </div>
+</ng-container>
+
+<h1>{{ availableAmount$ | async }}</h1>
+<ng-container *ngIf="coinStacks$ | async as coinStacks">
+  <div *ngFor="let stack of coinStacks">
+    {{ stack.denomination }} | {{ stack.count }}
+    <button (click)="insertCoin(stack.denomination)">+</button>
   </div>
 </ng-container>
