@@ -2,7 +2,10 @@ namespace VendingMachine.Domain.User;
 
 public interface IUserRepository
 {
-    Task<VendingMachineUser> GetByUserName(string userName);
-    Task<VendingMachineUserCredentials> GetCredentialsByUserName(string userName);
-    Task<VendingMachineUser> CreateUser(VendingMachineUser user, VendingMachineUserCredentials credentials);
+    
+    Task CreateBuyer( string userName, string password);
+    Task CreateSeller( string userName, string password);
+
+    Task<ITokenCredentials> GetCredentials(string userName, string password);
+    Task<ITokenCredentials> GetPrincipalFromExpiredToken(string accessToken, string refreshToken);
 }

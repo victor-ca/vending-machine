@@ -8,7 +8,7 @@ public interface IProduct
 }
 public class Product: IProduct
 {
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     public decimal Cost { get; set; }
     public int AmountAvailable { get; set; }
 }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VendingMachine.API.DTOs;
 using VendingMachine.Auth;
 
 namespace VendingMachine.API.Controllers;
@@ -19,25 +18,27 @@ public class UsersController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("login")]
-    public async Task<IActionResult> Authenticate([FromBody] UserDto userDto)
+    public async Task<IActionResult> Authenticate([FromBody] LoginModel loginModel)
     {
-        var authResult = await _authService.Authenticate(userDto.Username, userDto.Password);
+        var authResult = await _authService.Authenticate(loginModel);
+
+        return Ok(authResult);
+    }
+
+    [HttpPost]
+    [Route("refresh-token")]
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest refreshToken)
+    {
+        var authResult = await _authService.RefreshToken(refreshToken);
 
         return Ok(authResult);
     }
 
     [AllowAnonymous]
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] UserDto userDto)
+    public async Task<IActionResult> Register([FromBody] RegisterModel registerModel)
     {
-        try
-        {
-            var authResult = await _authService.CreateUser(userDto.Username, userDto.Password);
-            return Ok(authResult);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var authResult = await _authService.Register(registerModel);
+        return Ok(authResult);
     }
 }

@@ -39,6 +39,7 @@ public class ProductsController : ControllerBase
     {
         return _productsService.SetAmount(productName,amount);
     }
+    
     [HttpDelete("{productName}")]
     public Task<Product> Delete(string productName)
     {

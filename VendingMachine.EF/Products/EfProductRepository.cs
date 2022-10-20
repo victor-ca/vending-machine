@@ -19,9 +19,9 @@ public class EfProductRepository: IProductRepository
 
 
 
-    public async Task<IEnumerable<Product>> GetOwnedByUser(string userId)
+    public async Task<IEnumerable<Product>> GetOwnedByUser(string userName)
     {
-        var products = await _context.Products.Where(x => x.SellerId ==userId).ToListAsync();
+        var products = await _context.Products.Where(x => x.SellerId ==userName).ToListAsync();
         return ToDomain(products);
     }
 

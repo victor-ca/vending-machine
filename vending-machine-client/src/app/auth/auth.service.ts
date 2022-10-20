@@ -4,6 +4,8 @@ import { API_ENDPOINT } from './endpoint';
 import { map, Observable, of, tap } from 'rxjs';
 type AuthenticateResult = {
   token: string;
+  refreshToken: string;
+  expiration: string;
 };
 
 const tokenKey = 'vendingMachineToken';
@@ -11,8 +13,17 @@ const tokenKey = 'vendingMachineToken';
   providedIn: 'root',
 })
 export class AuthService {
-  getAuthToken(): Observable<string> {
-    return of(localStorage.getItem(tokenKey)!);
+  getAuthToken(): Observable<string | undefined> {
+    try {
+      const { token, expiration } = JSON.parse(
+        localStorage.getItem(tokenKey)!
+      ) as AuthenticateResult;
+
+      return of(token);
+    } catch (e) {
+      console.error(e);
+      return of(undefined);
+    }
   }
 
   constructor(
@@ -27,8 +38,8 @@ export class AuthService {
         password,
       })
       .pipe(
-        tap(({ token }) => {
-          localStorage.setItem(tokenKey, token);
+        tap((result) => {
+          localStorage.setItem(tokenKey, JSON.stringify(result));
         })
       );
   }
@@ -40,8 +51,8 @@ export class AuthService {
         password,
       })
       .pipe(
-        tap(({ token }) => {
-          localStorage.setItem(tokenKey, token);
+        tap((result) => {
+          localStorage.setItem(tokenKey, JSON.stringify(result));
         })
       );
   }

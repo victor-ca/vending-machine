@@ -18,26 +18,26 @@ public class ProductService : IProductsService
 
     public Task<IEnumerable<Product>> GetAllOwned()
     {
-        var userId = _currentUserService.GetCurrentUserId();
-        return _productRepository.GetOwnedByUser(userId);
+        var userName = _currentUserService.GetCurrentUserName();
+        return _productRepository.GetOwnedByUser(userName);
 
     }
 
     public Task<Product> Create(Product product)
     {
-        var userId = _currentUserService.GetCurrentUserId();
-        return _productRepository.Create(userId,product);
+        var userName = _currentUserService.GetCurrentUserName();
+        return _productRepository.Create(userName,product);
     }
 
     public Task<Product> SetAmount(string productName, int amount)
     {
-        var userId = _currentUserService.GetCurrentUserId();
+        var userId = _currentUserService.GetCurrentUserName();
         return _productRepository.SetProductAmount(userId, productName, amount);
     }
 
     public Task<Product> Delete(string productName)
     {
-        var userId = _currentUserService.GetCurrentUserId();
+        var userId = _currentUserService.GetCurrentUserName();
         return _productRepository.DeleteProduct(userId, productName);
     }
 

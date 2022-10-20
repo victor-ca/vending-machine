@@ -2,5 +2,5 @@ namespace VendingMachine.Domain;
 
 public interface ICurrentUserService
 {
-    string GetCurrentUserId();
+    string GetCurrentUserName();
 }
