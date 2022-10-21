@@ -1,16 +1,41 @@
 <ng-container *ngIf="formState$ | async as formState">
-  <form novalidate [ngrxFormState]="formState">
-    <label>
-      Username
-      <input [ngrxFormControlState]="formState.controls.userName" type="text" />
-    </label>
-    <label>
-      Pass
-      <input
-        [ngrxFormControlState]="formState.controls.password"
-        type="password"
-      />
-    </label>
-    <button (click)="login()">Login</button>
+  <form nz-form novalidate class="login-form" [ngrxFormState]="formState">
+    <nz-form-item>
+      <nz-form-control nzErrorTip="Please input your username!">
+        <nz-input-group nzPrefixIcon="user">
+          <input
+            type="text"
+            nz-input
+            [ngrxFormControlState]="formState.controls.userName"
+            placeholder="Username"
+          />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control nzErrorTip="Please input your Password!">
+        <nz-input-group nzPrefixIcon="lock">
+          <input
+            type="password"
+            nz-input
+            [ngrxFormControlState]="formState.controls.password"
+            formControlName="password"
+            placeholder="Password"
+          />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+
+    <button
+      nz-button
+      class="login-form-button login-form-margin"
+      nzType="primary"
+      (click)="login()"
+    >
+      Log in
+    </button>
+    <div class="register">
+      Or <a routerLink="/auth/register">register now!</a>
+    </div>
   </form>
 </ng-container>

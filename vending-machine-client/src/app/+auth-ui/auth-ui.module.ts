@@ -8,15 +8,19 @@ import { NgrxFormsModule } from 'ngrx-forms';
 import { StoreModule } from '@ngrx/store';
 import { authUiFeatureName } from './auth/store/auth-ui.state';
 import { authUiReducer } from './auth/store/auth-ui.reducers';
-import { AuthUiEffects } from './auth/store/auth-ui.effects';
-import { EffectsModule } from '@ngrx/effects';
-
+import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzButtonModule } from 'ng-zorro-antd/button';
 @NgModule({
   declarations: [LoginComponent, RegisterComponent],
   imports: [
     CommonModule,
     NgrxFormsModule,
-    EffectsModule.forFeature([AuthUiEffects]),
+    NzFormModule,
+    NzInputModule,
+    NzButtonModule,
+    NzCheckboxModule,
     StoreModule.forFeature(authUiFeatureName, authUiReducer),
     RouterModule.forChild(authRoutes),
   ],

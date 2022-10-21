@@ -1,4 +1,4 @@
-import { createReducer } from '@ngrx/store';
-import { defaultAppState } from './app.state';
+import { ActionReducerMap } from '@ngrx/store';
+import { AppState } from './app.state';
 
-export const appReducer = createReducer(defaultAppState);
+export const appReducer: ActionReducerMap<AppState> = {};

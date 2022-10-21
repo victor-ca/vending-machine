@@ -7,8 +7,11 @@ using Microsoft.IdentityModel.Tokens;
 using VendingMachine.Auth;
 using VendingMachine.Domain;
 using VendingMachine.Domain.Auth;
+using VendingMachine.Domain.CoinBank;
+using VendingMachine.Domain.Products;
 using VendingMachine.Domain.User;
 using VendingMachine.EF;
+using VendingMachine.EF.Coins;
 using VendingMachine.EF.Products;
 using VendingMachine.EF.Users;
 
@@ -21,7 +24,8 @@ var tokenOpts = new TokenGeneratorConfig
     Audience = configuration["JWTAuth:ValidAudience"],
     Issuer = configuration["JWTAuth:ValidIssuer"],
     Secret = configuration["JWTAuth:Secret"],
-    TokenValidityInMinutes = int.Parse(configuration["JWTAuth:TokenValidityInMinutes"])
+    TokenValidityInMinutes = int.Parse(configuration["JWTAuth:TokenValidityInMinutes"]),
+    RefreshTokenValidityInDays = int.Parse(configuration["JWTAuth:RefreshTokenValidityInDays"])
 };
 
 services.AddSingleton(tokenOpts);
@@ -39,6 +43,9 @@ services.AddTransient<IAuthService, AuthService>();
 services.AddTransient<ICurrentUserService, AuthService>();
 services.AddTransient<IProductRepository, EfProductRepository>();
 services.AddTransient<IProductsService, ProductService>();
+
+services.AddTransient<IVendingMachineService, VendingMachineService>();
+services.AddTransient<ICoinBankRepo, EfCoinBankRepo>();
 services.AddHttpContextAccessor();
 
 var allowDevPolicy = "AllowDev";

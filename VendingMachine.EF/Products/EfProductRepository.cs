@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using VendingMachine.Domain;
+using VendingMachine.Domain.Products;
 
 namespace VendingMachine.EF.Products;
 
-public class EfProductRepository: IProductRepository
+public class EfProductRepository : IProductRepository
 {
     private readonly VendingMachineDbContext _context;
 
@@ -11,6 +12,7 @@ public class EfProductRepository: IProductRepository
     {
         _context = context;
     }
+
     public async Task<IEnumerable<Product>> GetAllAvailable()
     {
         var products = await _context.Products.Where(x => x.AmountAvailable > 0).ToListAsync();
@@ -18,10 +20,9 @@ public class EfProductRepository: IProductRepository
     }
 
 
-
     public async Task<IEnumerable<Product>> GetOwnedByUser(string userName)
     {
-        var products = await _context.Products.Where(x => x.SellerId ==userName).ToListAsync();
+        var products = await _context.Products.Where(x => x.SellerId == userName).ToListAsync();
         return ToDomain(products);
     }
 
@@ -40,34 +41,46 @@ public class EfProductRepository: IProductRepository
         return ToDomain(p);
     }
 
-    public async Task<Product> SetProductAmount(string userId, string productName, int amount)
+    public async Task<Product> SetProductAmount(string productName, int amount)
     {
         var p = await _context.Products
-            .Where(x => x.SellerId == userId && x.Name == productName)
+            .Where(x => x.Name == productName)
             .FirstOrDefaultAsync();
-        if (p==null)
+        
+        if (p == null)
         {
-            throw new ProductNotFoundException(userId, productName);
+            throw new ProductNotFoundException(productName);
         }
 
         p.AmountAvailable = amount;
         await _context.SaveChangesAsync();
         return ToDomain(p);
-
     }
 
     public async Task<Product> DeleteProduct(string userId, string productName)
     {
-        var product = await _context.Products.Where(x => x.SellerId == userId && x.Name == productName).FirstOrDefaultAsync();
-        
-        if (product==null)
+        var product = await _context.Products.Where(x => x.SellerId == userId && x.Name == productName)
+            .FirstOrDefaultAsync();
+
+        if (product == null)
         {
-            throw new ProductNotFoundException(userId, productName);
+            throw new ProductNotFoundException(productName);
         }
-        
+
         _context.Remove(product);
         await _context.SaveChangesAsync();
-        
+
+        return ToDomain(product);
+    }
+
+    public async Task<Product> GetProductByName(string productName)
+    {
+        var product = await _context.Products.FirstOrDefaultAsync(x => x.Name == productName);
+        if (product == null)
+        {
+            throw new ProductNotFoundException(productName);
+        }
+
         return ToDomain(product);
 
     }
@@ -77,6 +90,7 @@ public class EfProductRepository: IProductRepository
     {
         return products.Select(ToDomain);
     }
+
     private Product ToDomain(ProductDpo p)
     {
         return new Product { Cost = p.Cost, Name = p.Name, AmountAvailable = p.AmountAvailable };
@@ -85,8 +99,7 @@ public class EfProductRepository: IProductRepository
 
 public class ProductNotFoundException : Exception
 {
-    public ProductNotFoundException(string userId, string productName): base($"the user ${userId} does not own a ${productName}")
+    public ProductNotFoundException(string productName) : base($"product ${productName} was not found")
     {
-        throw new NotImplementedException();
     }
 }

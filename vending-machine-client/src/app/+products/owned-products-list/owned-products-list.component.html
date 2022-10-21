@@ -1,8 +1,32 @@
-<div *ngFor="let p of ownedProducts$ | async">
-  <a [routerLink]="['.', p.name]"
-    >{{ p.name }} | {{ p.amountAvailable }}| ${{ p.cost }}</a
-  >
-</div>
-<div>
+<section>
+  <nz-table #table [nzData]="(ownedProducts$ | async)!">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Amount Available</th>
+        <th>Price</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let p of table.data">
+        <td>
+          {{ p.name }}
+        </td>
+        <td>{{ p.amountAvailable }}</td>
+        <td>${{ p.cost }}</td>
+        <td>
+          <div class="actions">
+            <a [routerLink]="['.', p.name]">Edit</a>
+            <nz-divider nzType="vertical"></nz-divider>
+            <a>Delete</a>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+</section>
+
+<section>
   <router-outlet></router-outlet>
-</div>
+</section>

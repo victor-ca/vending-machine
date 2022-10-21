@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { FormGroupState } from 'ngrx-forms';
 import { Observable, take } from 'rxjs';
-import { registerActions } from '../store/auth-ui.actions';
+import { registerActions } from '../../../auth/store/auth.actions';
 import { selectRegisterForm } from '../store/auth-ui.selectors';
 import { RegisterForm } from '../store/auth-ui.state';
 
@@ -20,11 +20,12 @@ export class RegisterComponent implements OnInit {
   ngOnInit(): void {}
   register() {
     this.formState$.pipe(take(1)).subscribe(({ controls }) => {
-      const { password, userName } = controls;
+      const { password, userName, isSeller } = controls;
       this.store.dispatch(
         registerActions.start({
           password: password.value,
           userName: userName.value,
+          isSeller: isSeller.value,
         })
       );
     });

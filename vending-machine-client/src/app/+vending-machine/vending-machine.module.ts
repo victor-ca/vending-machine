@@ -6,18 +6,45 @@ import { vendingMachineFeatureName } from './store/vending-machine.store';
 import { vendingMachineReducer } from './store/vending-machine.reducer';
 import { EffectsModule } from '@ngrx/effects';
 import { VendingMachineEffects } from './store/vending-machine.effects';
-import { Router, RouterModule } from '@angular/router';
-
+import { RouterModule } from '@angular/router';
+import { NzDividerModule } from 'ng-zorro-antd/divider';
+import { NzTableModule } from 'ng-zorro-antd/table';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { CoinBankComponent } from './coin-bank/coin-bank.component';
+import { BuyProductComponent } from './buy-product/buy-product.component';
+import { NzInputModule } from 'ng-zorro-antd/input';
 @NgModule({
-  declarations: [VendingMachineComponent],
+  declarations: [
+    VendingMachineComponent,
+    CoinBankComponent,
+    BuyProductComponent,
+  ],
   imports: [
     CommonModule,
+    NzTableModule,
+    NzButtonModule,
+    NzInputModule,
+    NzDividerModule,
     EffectsModule.forFeature([VendingMachineEffects]),
     StoreModule.forFeature(vendingMachineFeatureName, vendingMachineReducer),
     RouterModule.forChild([
       {
         path: '',
         component: VendingMachineComponent,
+        children: [
+          {
+            path: 'coins',
+            component: CoinBankComponent,
+          },
+          {
+            path: 'buy/:productName',
+            component: BuyProductComponent,
+          },
+          {
+            path: '**',
+            redirectTo: 'coins',
+          },
+        ],
       },
     ]),
   ],

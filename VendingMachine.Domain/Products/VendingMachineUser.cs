@@ -1,4 +1,4 @@
-﻿namespace VendingMachine.Domain;
+﻿namespace VendingMachine.Domain.Products;
 
 public interface IVendingMachineUser
 {

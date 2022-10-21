@@ -2,6 +2,7 @@ import { createReducer, on } from '@ngrx/store';
 import { createFormGroupState, onNgrxForms } from 'ngrx-forms';
 import {
   createNewProductActions,
+  deleteProductActions,
   loadOwnedProductsActions,
   setProductAmountActions,
 } from './product.actions';
@@ -29,6 +30,10 @@ export const productsReducer = createReducer<ProductsState>(
     ownedProducts: s.ownedProducts.map((x) =>
       x.name == product.name ? product : x
     ),
+  })),
+  on(deleteProductActions.start, (s, { productName }) => ({
+    ...s,
+    ownedProducts: s.ownedProducts.filter((x) => x.name != productName),
   })),
   on(createNewProductActions.success, (s, { product }) => ({
     ...s,

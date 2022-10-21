@@ -17,7 +17,7 @@ export class ProductDetailsComponent implements OnInit {
 
   ngOnInit(): void {
     const currentProductName$ = this.activatedRoute.params.pipe(
-      map((p) => p['productId']),
+      map((p) => p['productName']),
       filter((p) => !!p)
     );
     this.currentProduct$ = combineLatest([

@@ -8,6 +8,7 @@ public interface ITokenCredentials
     DateTime Expiration { get;  } 
 }
 
+
 public interface IRefreshTokenCredentials
 {
     public string? RefreshToken { get; set; }

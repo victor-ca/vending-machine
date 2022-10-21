@@ -21,7 +21,8 @@ export class BearerAuthInterceptor implements HttpInterceptor {
     req: HttpRequest<unknown>,
     next: HttpHandler
   ): Observable<HttpEvent<unknown>> {
-    if (req.url.indexOf(this.apiEndpoint) !== 0) {
+    const isOnAuthRoute = req.url.startsWith(`${this.apiEndpoint}/auth`);
+    if (isOnAuthRoute || req.url.indexOf(this.apiEndpoint) !== 0) {
       return next.handle(req);
     }
 

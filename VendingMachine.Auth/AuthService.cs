@@ -44,9 +44,13 @@ public class AuthService : IAuthService, ICurrentUserService
         var userName = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
         if (userName == null)
         {
-            throw new Exception();
+            throw new NoUserInContextException();
         }
 
         return userName;
     }
+}
+
+public class NoUserInContextException : Exception
+{
 }

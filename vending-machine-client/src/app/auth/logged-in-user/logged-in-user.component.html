@@ -1,0 +1,5 @@
+<ng-container *ngIf="authState$ | async as a">
+  <button nz-button *ngIf="a.isAuthenticated" (click)="logout()">
+    Log out {{ $any(a).name }}
+  </button>
+</ng-container>

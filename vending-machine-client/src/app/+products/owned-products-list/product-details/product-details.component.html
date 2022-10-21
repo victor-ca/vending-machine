@@ -1,12 +1,11 @@
 <ng-container *ngIf="currentProduct$ | async as p">
-  {{ p.name }} | ${{ p.cost }}
-  <div>
-    <label
-      >Available amount
-      <input #i type="number" [value]="p.amountAvailable" type="text" />
-      <button (click)="updateAvailableAmount(p.name, +i.value)">
-        Set Available Amount
-      </button>
-    </label>
-  </div>
+  <h1>Edit {{ p.name }}</h1>
+
+  <label
+    >Available amount
+    <input #i type="number" [value]="p.amountAvailable" type="text" />
+    <button (click)="updateAvailableAmount(p.name, +i.value)">
+      Set Available Amount
+    </button>
+  </label>
 </ng-container>

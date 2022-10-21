@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { VendingMachineComponent } from './vending-machine.component';
+import { CoinBankComponent } from './coin-bank.component';
 
-describe('VendingMachineComponent', () => {
-  let component: VendingMachineComponent;
-  let fixture: ComponentFixture<VendingMachineComponent>;
+describe('CoinBankComponent', () => {
+  let component: CoinBankComponent;
+  let fixture: ComponentFixture<CoinBankComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ VendingMachineComponent ]
+      declarations: [ CoinBankComponent ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(VendingMachineComponent);
+    fixture = TestBed.createComponent(CoinBankComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

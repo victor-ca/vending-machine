@@ -158,17 +158,36 @@ namespace VendingMachine.EF.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CoinBank",
+                columns: table => new
+                {
+                    CentDenominator = table.Column<int>(type: "INTEGER", nullable: false),
+                    UserName = table.Column<string>(type: "TEXT", nullable: false),
+                    Amount = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CoinBank", x => new { x.CentDenominator, x.UserName });
+                    table.ForeignKey(
+                        name: "FK_CoinBank_AspNetUsers_UserName",
+                        column: x => x.UserName,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "UserName",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Products",
                 columns: table => new
                 {
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    SellerId = table.Column<string>(type: "TEXT", nullable: false),
                     Cost = table.Column<decimal>(type: "TEXT", nullable: false),
-                    AmountAvailable = table.Column<int>(type: "INTEGER", nullable: false)
+                    AmountAvailable = table.Column<int>(type: "INTEGER", nullable: false),
+                    SellerId = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Products", x => new { x.Name, x.SellerId });
+                    table.PrimaryKey("PK_Products", x => x.Name);
                     table.ForeignKey(
                         name: "FK_Products_AspNetUsers_SellerId",
                         column: x => x.SellerId,
@@ -215,6 +234,11 @@ namespace VendingMachine.EF.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_CoinBank_UserName",
+                table: "CoinBank",
+                column: "UserName");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Products_SellerId",
                 table: "Products",
                 column: "SellerId");
@@ -236,6 +260,9 @@ namespace VendingMachine.EF.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "CoinBank");
 
             migrationBuilder.DropTable(
                 name: "Products");

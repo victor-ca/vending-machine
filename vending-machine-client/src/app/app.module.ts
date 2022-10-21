@@ -13,13 +13,29 @@ import { environment } from 'src/environments/environment';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { EffectsModule } from '@ngrx/effects';
 import { BearerAuthInterceptor } from './auth/http-auth.interceptor';
+import { NZ_I18N } from 'ng-zorro-antd/i18n';
+import { en_US } from 'ng-zorro-antd/i18n';
+import { registerLocaleData } from '@angular/common';
+import en from '@angular/common/locales/en';
+import { FormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { IconsProviderModule } from './icons-provider.module';
+import { NzLayoutModule } from 'ng-zorro-antd/layout';
+import { NzMenuModule } from 'ng-zorro-antd/menu';
+import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { LoggedInUserComponent } from './auth/logged-in-user/logged-in-user.component';
+import { AuthEffects } from './auth/store/auth.effects';
+registerLocaleData(en);
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, LoggedInUserComponent],
   imports: [
     BrowserModule,
+    NzButtonModule,
     NgrxFormsModule,
+    NzBreadCrumbModule,
     HttpClientModule,
-    EffectsModule.forRoot(),
+    EffectsModule.forRoot([AuthEffects]),
     StoreModule.forRoot(appReducer),
     !environment.production
       ? StoreDevtoolsModule.instrument({
@@ -28,7 +44,12 @@ import { BearerAuthInterceptor } from './auth/http-auth.interceptor';
         })
       : [],
 
-    RouterModule.forRoot(appRoutes),
+    RouterModule.forRoot(appRoutes, { enableTracing: true }),
+    FormsModule,
+    BrowserAnimationsModule,
+    IconsProviderModule,
+    NzLayoutModule,
+    NzMenuModule,
   ],
   providers: [
     { provide: API_ENDPOINT, useValue: environment.apiEndpoint },
@@ -37,6 +58,7 @@ import { BearerAuthInterceptor } from './auth/http-auth.interceptor';
       useClass: BearerAuthInterceptor,
       multi: true,
     },
+    { provide: NZ_I18N, useValue: en_US },
   ],
   bootstrap: [AppComponent],
 })

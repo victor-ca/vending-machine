@@ -1,0 +1,15 @@
+<h1>Coins (${{ availableAmount$ | async | number: "1.2-2" }})</h1>
+<ng-container *ngIf="coinStacks$ | async as coinStacks">
+  <p>click on coin to insert</p>
+  <div *ngFor="let stack of coinStacks" class="coin-stack">
+    <button
+      (click)="insertCoin(stack.denomination)"
+      nz-button
+      nzType="primary"
+      nzShape="circle"
+    >
+      {{ stack.denomination }}
+    </button>
+    x {{ stack.count }}
+  </div>
+</ng-container>

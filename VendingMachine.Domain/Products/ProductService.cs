@@ -1,4 +1,6 @@
-namespace VendingMachine.Domain;
+using VendingMachine.Domain.User;
+
+namespace VendingMachine.Domain.Products;
 
 public class ProductService : IProductsService
 {
@@ -31,8 +33,7 @@ public class ProductService : IProductsService
 
     public Task<Product> SetAmount(string productName, int amount)
     {
-        var userId = _currentUserService.GetCurrentUserName();
-        return _productRepository.SetProductAmount(userId, productName, amount);
+        return _productRepository.SetProductAmount(productName, amount);
     }
 
     public Task<Product> Delete(string productName)

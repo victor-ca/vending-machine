@@ -2,9 +2,10 @@ import { AuthService } from 'src/app/auth/auth.service';
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 
-import { map, switchMap } from 'rxjs';
+import { concatMap, map, mergeMap, switchMap } from 'rxjs';
 import {
   createNewProductActions,
+  deleteProductActions,
   loadOwnedProductsActions,
   setProductAmountActions,
 } from './product.actions';
@@ -27,9 +28,20 @@ export class OwnedProductsEffects {
   createNew$ = createEffect(() =>
     this.actions$.pipe(
       ofType(createNewProductActions.start),
-      switchMap(({ product }) =>
+      concatMap(({ product }) =>
         this.productsService
           .createProduct(product)
+          .pipe(map((product) => createNewProductActions.success({ product })))
+      )
+    )
+  );
+
+  delete$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(deleteProductActions.start),
+      concatMap(({ productName }) =>
+        this.productsService
+          .deleteProduct(productName)
           .pipe(map((product) => createNewProductActions.success({ product })))
       )
     )
@@ -38,7 +50,7 @@ export class OwnedProductsEffects {
   setAmount$ = createEffect(() =>
     this.actions$.pipe(
       ofType(setProductAmountActions.start),
-      switchMap(({ amount, productName }) =>
+      concatMap(({ amount, productName }) =>
         this.productsService
           .setProductAmount(productName, amount)
           .pipe(map((product) => setProductAmountActions.success({ product })))

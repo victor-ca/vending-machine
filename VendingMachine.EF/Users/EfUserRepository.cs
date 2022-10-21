@@ -1,6 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Authentication;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using VendingMachine.Auth;
 using VendingMachine.Domain.Auth;
 using VendingMachine.Domain.User;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
@@ -13,12 +15,19 @@ public class EfUserRepository: IUserRepository
     private readonly UserManager<VendingMachineUserDpo> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly ITokenGenerator _tokenGenerator;
+    private readonly TokenGeneratorConfig _config;
 
-    public EfUserRepository(UserManager<VendingMachineUserDpo> userManager, RoleManager<IdentityRole> roleManager, ITokenGenerator tokenGenerator)
+    public EfUserRepository(
+        UserManager<VendingMachineUserDpo> userManager,
+        RoleManager<IdentityRole> roleManager,
+        ITokenGenerator tokenGenerator,
+        TokenGeneratorConfig config
+        )
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _tokenGenerator = tokenGenerator;
+        _config = config;
     }
     public async Task<ITokenCredentials> GetCredentials(string userName, string password)
     {
@@ -26,7 +35,7 @@ public class EfUserRepository: IUserRepository
         var areCredsValid = user != null && await _userManager.CheckPasswordAsync(user, password); 
         if (!areCredsValid)
         {
-            throw new Exception();
+            throw new InvalidCredentialException();
         }
         var userRoles = await _userManager.GetRolesAsync(user!);
         var authClaims = new List<Claim>
@@ -35,9 +44,16 @@ public class EfUserRepository: IUserRepository
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
         authClaims.AddRange(userRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole)));
+        authClaims.Add(new Claim("userName",userName));
+        bool isSeller = userRoles.FirstOrDefault(x => x == UserRoles.Seller) !=  null; 
+        authClaims.Add(new Claim("isSeller",isSeller?"true":"false"));
         
         var token = _tokenGenerator.CreateToken(authClaims);
         var refreshToken = _tokenGenerator.GenerateRefreshToken();
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpiryTime = DateTime.Now.AddDays(_config.RefreshTokenValidityInDays);
+        await _userManager.UpdateAsync(user);
+        
         return new TokenCredentials
         {
             Token = new JwtSecurityTokenHandler().WriteToken(token),
@@ -99,7 +115,7 @@ public class EfUserRepository: IUserRepository
         var userExists = await _userManager.FindByNameAsync(userName);
         if (userExists != null)
         {
-            throw new Exception();
+            throw new UserAlreadyExistException(userName);
         }
 
         VendingMachineUserDpo user = new()
@@ -116,4 +132,12 @@ public class EfUserRepository: IUserRepository
         return user;
     }
     
+}
+
+internal class UserAlreadyExistException : Exception
+{
+    public UserAlreadyExistException(string userName): base($"user {userName} already exists")
+    {
+     
+    }
 }

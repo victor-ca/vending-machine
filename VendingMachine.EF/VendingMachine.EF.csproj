@@ -18,6 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\VendingMachine.Auth\VendingMachine.Auth.csproj" />
       <ProjectReference Include="..\VendingMachine.Domain\VendingMachine.Domain.csproj" />
     </ItemGroup>
 

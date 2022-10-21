@@ -13,6 +13,12 @@ export const loadOwnedProductsActions = {
   ),
 };
 
+export const deleteProductActions = {
+  start: createAction('delete product', props<{ productName: string }>()),
+  success: createAction('delete products success'),
+  failure: createAction('delete products failure'),
+};
+
 export const createNewProductActions = {
   start: createAction('create product', props<{ product: Product }>()),
   success: createAction(

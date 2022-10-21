@@ -11,7 +11,7 @@ using VendingMachine.EF;
 namespace VendingMachine.EF.Migrations
 {
     [DbContext(typeof(VendingMachineDbContext))]
-    [Migration("20221020174847_InitialCreate")]
+    [Migration("20221022105734_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -147,12 +147,27 @@ namespace VendingMachine.EF.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("VendingMachine.EF.Coins.UserCoins", b =>
+                {
+                    b.Property<int>("CentDenominator")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("CentDenominator", "UserName");
+
+                    b.HasIndex("UserName");
+
+                    b.ToTable("CoinBank");
+                });
+
             modelBuilder.Entity("VendingMachine.EF.Products.ProductDpo", b =>
                 {
                     b.Property<string>("Name")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("SellerId")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("AmountAvailable")
@@ -161,7 +176,11 @@ namespace VendingMachine.EF.Migrations
                     b.Property<decimal>("Cost")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("Name", "SellerId");
+                    b.Property<string>("SellerId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Name");
 
                     b.HasIndex("SellerId");
 
@@ -286,6 +305,16 @@ namespace VendingMachine.EF.Migrations
                     b.HasOne("VendingMachine.EF.Users.VendingMachineUserDpo", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("VendingMachine.EF.Coins.UserCoins", b =>
+                {
+                    b.HasOne("VendingMachine.EF.Users.VendingMachineUserDpo", null)
+                        .WithMany()
+                        .HasForeignKey("UserName")
+                        .HasPrincipalKey("UserName")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

@@ -5,7 +5,7 @@ import { ProductDetailsComponent } from './owned-products-list/product-details/p
 
 export const productRoutes: Route[] = [
   {
-    path: 'owned',
+    path: '',
     component: OwnedProductsListComponent,
     children: [
       {
@@ -13,9 +13,10 @@ export const productRoutes: Route[] = [
         component: NewProductComponent,
       },
       {
-        path: ':productId',
+        path: ':productName',
         component: ProductDetailsComponent,
       },
+      { path: '**', redirectTo: 'new' },
     ],
   },
 ];

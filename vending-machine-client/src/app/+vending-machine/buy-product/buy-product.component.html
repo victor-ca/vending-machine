@@ -1,0 +1,35 @@
+<button nz-button [routerLink]="['..', '..', 'coins']">Go Back</button>
+
+<div class="main" *ngIf="product$ | async as p">
+  <h1>Buy {{ p.name }} @ ${{ p.cost }} per item</h1>
+  <div>
+    Available Funds: ${{ (availableAmount$ | async | number: "1.2-2")! }}
+  </div>
+
+  <input
+    #i
+    (input)="amount = +i.value"
+    [value]="amount"
+    placeholder="Amount"
+    type="number"
+  />
+
+  <div class="buy" *ngIf="availableAmount$ | async as fundsAvailable">
+    <button
+      nz-button
+      [disabled]="
+        !(p.amountAvailable >= amount && fundsAvailable >= +amount * p.cost)
+      "
+      [routerLink]="['..', '..']"
+    >
+      Buy for ${{ amount * p.cost }}
+    </button>
+  </div>
+
+  <div class="errors">
+    <div *ngIf="(availableAmount$ | async)! < amount * p.cost">
+      Not enough funds
+    </div>
+    <div *ngIf="p.amountAvailable < amount">Not enough Products</div>
+  </div>
+</div>

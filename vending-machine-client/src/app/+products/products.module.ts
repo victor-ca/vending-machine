@@ -11,6 +11,8 @@ import { OwnedProductsEffects } from './store/product.effects';
 import { NewProductComponent } from './owned-products-list/new-product/new-product.component';
 import { ProductDetailsComponent } from './owned-products-list/product-details/product-details.component';
 import { NgrxFormsModule } from 'ngrx-forms';
+import { NzTableModule } from 'ng-zorro-antd/table';
+import { NzDividerModule } from 'ng-zorro-antd/divider';
 
 @NgModule({
   declarations: [
@@ -20,6 +22,8 @@ import { NgrxFormsModule } from 'ngrx-forms';
   ],
   imports: [
     CommonModule,
+    NzTableModule,
+    NzDividerModule,
     NgrxFormsModule,
     RouterModule.forChild(productRoutes),
     EffectsModule.forFeature([OwnedProductsEffects]),

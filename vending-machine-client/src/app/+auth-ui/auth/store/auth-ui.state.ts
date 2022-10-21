@@ -1,9 +1,9 @@
-import { Action, createReducer } from '@ngrx/store';
-import { createFormGroupState, FormGroupState } from 'ngrx-forms';
+import { FormGroupState } from 'ngrx-forms';
 
 export type RegisterForm = {
   userName: string;
   password: string;
+  isSeller: boolean;
 };
 export type LoginForm = {
   userName: string;

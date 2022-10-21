@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { FormGroupState } from 'ngrx-forms';
 import { Observable, take } from 'rxjs';
-import { loginUserActions } from '../store/auth-ui.actions';
+import { loginUserActions } from '../../../auth/store/auth.actions';
 import { selectLoginForm } from '../store/auth-ui.selectors';
 import { LoginForm } from '../store/auth-ui.state';
 

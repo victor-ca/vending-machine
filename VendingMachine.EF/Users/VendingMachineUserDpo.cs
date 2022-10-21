@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using VendingMachine.Domain;
+using VendingMachine.Domain.Products;
 using VendingMachine.Domain.User;
 
 namespace VendingMachine.EF.Users;

@@ -26,6 +26,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
+    [AllowAnonymous]
     [Route("refresh-token")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest refreshToken)
     {
