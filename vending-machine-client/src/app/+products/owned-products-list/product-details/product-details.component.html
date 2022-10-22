@@ -1,11 +1,47 @@
 <ng-container *ngIf="currentProduct$ | async as p">
   <h1>Edit {{ p.name }}</h1>
+  <form nz-form novalidate>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">Name</nz-form-label>
+      <nz-form-control>
+        <nz-input-group>
+          <input nz-input #name [value]="p.name" />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">Amount</nz-form-label>
+      <nz-form-control>
+        <nz-input-group>
+          <input nz-input #amt type="number" [value]="p.amountAvailable" />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
 
-  <label
-    >Available amount
-    <input #i type="number" [value]="p.amountAvailable" type="text" />
-    <button (click)="updateAvailableAmount(p.name, +i.value)">
-      Set Available Amount
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">$ Cost</nz-form-label>
+      <nz-form-control>
+        <nz-input-group>
+          <input nz-input #price type="number" [value]="p.cost" />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+  <div class="form-actions">
+    <button nz-button nzSize="large" routerLink="../new">Cancel</button>&nbsp;
+    <button
+      nz-button
+      nzType="primary"
+      nzSize="large"
+      (click)="
+        updateProduct(p.name, {
+          name: name.value,
+          amountAvailable: +amt.value,
+          cost: +price.value
+        })
+      "
+    >
+      Update
     </button>
-  </label>
+  </div>
 </ng-container>

@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using VendingMachine.Domain;
 using VendingMachine.Domain.Products;
 
 namespace VendingMachine.EF.Products;
@@ -13,20 +12,20 @@ public class EfProductRepository : IProductRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<Product>> GetAllAvailable()
+    public async Task<IEnumerable<IProduct>> GetAllAvailable()
     {
         var products = await _context.Products.Where(x => x.AmountAvailable > 0).ToListAsync();
         return ToDomain(products);
     }
 
 
-    public async Task<IEnumerable<Product>> GetOwnedByUser(string userName)
+    public async Task<IEnumerable<IProduct>> GetOwnedByUser(string userName)
     {
         var products = await _context.Products.Where(x => x.SellerId == userName).ToListAsync();
         return ToDomain(products);
     }
 
-    public async Task<Product> Create(string userId, Product product)
+    public async Task<IProduct> Create(string userId, IProduct product)
     {
         var p = new ProductDpo
         {
@@ -41,23 +40,56 @@ public class EfProductRepository : IProductRepository
         return ToDomain(p);
     }
 
-    public async Task<Product> SetProductAmount(string productName, int amount)
+    public async Task<IProduct> SetProductAmount(string productName, int amountAvailable)
+    {
+        ProductDpo p = await GetProductByDpoByName(productName);
+
+        p.AmountAvailable = amountAvailable;
+
+        await _context.SaveChangesAsync();
+        return ToDomain(p);
+    }
+
+    public async Task<IProduct> UpdateProduct(string productName, IProduct update)
+    {
+        ProductDpo p = await GetProductByDpoByName(productName);
+        if (update.Name != productName)
+        {
+            _context.Products.Remove(p);
+            var newProduct = new ProductDpo()
+            {
+                Name = update.Name,
+                AmountAvailable = update.AmountAvailable,
+                Cost = update.Cost,
+                SellerId = p.SellerId
+            };
+            _context.Products.Add(newProduct);
+            await _context.SaveChangesAsync();
+            return ToDomain(newProduct);
+        }
+
+        p.Cost = update.Cost;
+        p.AmountAvailable = update.AmountAvailable;
+
+        await _context.SaveChangesAsync();
+        return ToDomain(p);
+    }
+
+    private async Task<ProductDpo> GetProductByDpoByName(string productName)
     {
         var p = await _context.Products
             .Where(x => x.Name == productName)
             .FirstOrDefaultAsync();
-        
+
         if (p == null)
         {
             throw new ProductNotFoundException(productName);
         }
 
-        p.AmountAvailable = amount;
-        await _context.SaveChangesAsync();
-        return ToDomain(p);
+        return p;
     }
 
-    public async Task<Product> DeleteProduct(string userId, string productName)
+    public async Task<IProduct> DeleteProduct(string userId, string productName)
     {
         var product = await _context.Products.Where(x => x.SellerId == userId && x.Name == productName)
             .FirstOrDefaultAsync();
@@ -73,7 +105,7 @@ public class EfProductRepository : IProductRepository
         return ToDomain(product);
     }
 
-    public async Task<Product> GetProductByName(string productName)
+    public async Task<IProduct> GetProductByName(string productName)
     {
         var product = await _context.Products.FirstOrDefaultAsync(x => x.Name == productName);
         if (product == null)
@@ -82,16 +114,15 @@ public class EfProductRepository : IProductRepository
         }
 
         return ToDomain(product);
-
     }
 
 
-    private IEnumerable<Product> ToDomain(List<ProductDpo> products)
+    private IEnumerable<IProduct> ToDomain(List<ProductDpo> products)
     {
         return products.Select(ToDomain);
     }
 
-    private Product ToDomain(ProductDpo p)
+    private IProduct ToDomain(ProductDpo p)
     {
         return new Product { Cost = p.Cost, Name = p.Name, AmountAvailable = p.AmountAvailable };
     }

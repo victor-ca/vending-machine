@@ -1,11 +1,10 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
-import { TypedAction } from '@ngrx/store/src/models';
 import { Observable } from 'rxjs';
-import { API_ENDPOINT } from '../auth/endpoint';
-import { Product } from '../model/product';
-import { CoinBank } from './store/vending-machine.store';
-
+import { API_ENDPOINT } from 'src/app/auth/endpoint';
+import { Product } from 'src/app/model/product';
+import { CoinBank } from '../store/vending-machine.store';
+import { PurchaseResult } from './purchase-result';
 @Injectable({
   providedIn: 'root',
 })
@@ -24,8 +23,12 @@ export class VendingMachineService {
       `${this.apiEndpoint}/products/for-sale`
     );
   }
-  purchase(productName: string, desiredAmount: number): Observable<CoinBank> {
-    return this.httpClient.post<CoinBank>(`${this.apiEndpoint}/buy`, {
+
+  purchase(
+    productName: string,
+    desiredAmount: number
+  ): Observable<PurchaseResult> {
+    return this.httpClient.post<PurchaseResult>(`${this.apiEndpoint}/buy`, {
       productName,
       desiredAmount,
     });

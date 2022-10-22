@@ -13,6 +13,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { CoinBankComponent } from './coin-bank/coin-bank.component';
 import { BuyProductComponent } from './buy-product/buy-product.component';
 import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzNotificationModule } from 'ng-zorro-antd/notification';
 @NgModule({
   declarations: [
     VendingMachineComponent,
@@ -24,6 +25,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
     NzTableModule,
     NzButtonModule,
     NzInputModule,
+    NzNotificationModule,
     NzDividerModule,
     EffectsModule.forFeature([VendingMachineEffects]),
     StoreModule.forFeature(vendingMachineFeatureName, vendingMachineReducer),

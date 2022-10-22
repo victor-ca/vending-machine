@@ -29,23 +29,26 @@ public class VendingMachineService : IVendingMachineService
         return await _coinBankRepo.GetAvailableCoins(userName);
     }
 
-    public async Task<Dictionary<int, int>> PurchaseProduct(PurchaseRequest request)
+    public async Task<PurchaseResult> PurchaseProduct(PurchaseRequest request)
     {
         var coins = await GetAvailableCoins();
         var product = await _productRepository.GetProductByName(request.ProductName);
-        var coinsWithChange =  AttemptPurchase(product, request.DesiredAmount, coins);
+        var purchaseResult =  AttemptPurchase(product, request.DesiredAmount, coins);
         await _productRepository.SetProductAmount(product.Name, product.AmountAvailable -= request.DesiredAmount);
         var userName = _currentUserService.GetCurrentUserName();
-        await _coinBankRepo.ResetUserCoinsTo(userName,coinsWithChange);
+        await _coinBankRepo.ResetUserCoinsTo(userName,purchaseResult.NewCoinBankState);
 
-        return coinsWithChange;
+        return purchaseResult;
     }
 
-    private Dictionary<int, int> AttemptPurchase(Product product, int amountToPurchase,
+    private PurchaseResult AttemptPurchase(IProduct product, int amountToPurchase,
         Dictionary<int, int> coins)
     {
-        var unpaidAmountInCents = product.Cost * amountToPurchase * 100;
+        var totalCostInCents =  product.Cost * amountToPurchase * 100;
+        var actualSpentInCents = 0;
+        var unpaidAmountInCents = totalCostInCents;
         var remainingCoins = CoinUtils.CoinDictToCoinArraySortedDescending(coins).ToList();
+        var usedCoins = new List<int>();
 
         while (unpaidAmountInCents > 0)
         {
@@ -59,27 +62,53 @@ public class VendingMachineService : IVendingMachineService
             {
                 coinToSpend = remainingCoins.First();
             }
-
+            usedCoins.Add(coinToSpend);
             remainingCoins.Remove(coinToSpend);
 
             unpaidAmountInCents -= coinToSpend;
+            actualSpentInCents += coinToSpend;
         }
 
+        PurchaseResult result = new PurchaseResult
+        {
+            ActualSpentInCents = actualSpentInCents,
+            PurchaseAmountInCents = (int)totalCostInCents,
+            ChangeAmountInCents = (int)Math.Abs(unpaidAmountInCents),
+            UsedCoins =  CoinUtils.CoinListToCoinDict(usedCoins)
+        };
         
+        var changeCoins = new List<int>();
         while (unpaidAmountInCents < 0)
         {
-            var changeCoin = CoinUtils.AllowedDenominations.First(x => unpaidAmountInCents + x <= 0);
+            var changeCoin = CoinUtils.AllowedDenominations.FirstOrDefault(x => unpaidAmountInCents + x <= 0);
+            if (changeCoin == 0)
+            {
+                throw new ChangeAmountCannotBeFormedUsingSpecifiedDenominatorException(result.ChangeAmountInCents);
+            }
+
             unpaidAmountInCents += changeCoin;
-            remainingCoins.Add(changeCoin);
+            changeCoins.Add(changeCoin);
         }
 
-        return CoinUtils.CoinListToCoinDict(remainingCoins);
+        remainingCoins.AddRange(changeCoins);
+        result.NewCoinBankState = CoinUtils.CoinListToCoinDict(remainingCoins);
+        result.ChangeCoins = CoinUtils.CoinListToCoinDict(changeCoins);
+
+        return result;
     }
 
     public async Task Reset()
     {
         var user = _currentUserService.GetCurrentUserName();
         await _coinBankRepo.ClearUserCoins(user);
+    }
+}
+
+internal class ChangeAmountCannotBeFormedUsingSpecifiedDenominatorException : Exception
+{
+    public ChangeAmountCannotBeFormedUsingSpecifiedDenominatorException(decimal change):base($"a change of {change} cannot be returned using allowed denominators")
+    {
+        
     }
 }
 

@@ -4,12 +4,9 @@ import { API_ENDPOINT } from './endpoint';
 import {
   catchError,
   map,
-  mapTo,
-  noop,
   Observable,
   of,
   ReplaySubject,
-  switchMap,
   take,
   tap,
 } from 'rxjs';
@@ -100,11 +97,7 @@ export class AuthService {
         userName,
         password,
       })
-      .pipe(
-        tap(this.persistTokenAndUpdateUser),
-        map(mapToCurrentUser),
-        catchError(this.logOut)
-      );
+      .pipe(tap(this.persistTokenAndUpdateUser), map(mapToCurrentUser));
   }
 
   private refresh(refreshRequest: {

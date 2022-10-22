@@ -13,6 +13,9 @@ import { ProductDetailsComponent } from './owned-products-list/product-details/p
 import { NgrxFormsModule } from 'ngrx-forms';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzButtonModule } from 'ng-zorro-antd/button';
 
 @NgModule({
   declarations: [
@@ -24,6 +27,9 @@ import { NzDividerModule } from 'ng-zorro-antd/divider';
     CommonModule,
     NzTableModule,
     NzDividerModule,
+    NzFormModule,
+    NzInputModule,
+    NzButtonModule,
     NgrxFormsModule,
     RouterModule.forChild(productRoutes),
     EffectsModule.forFeature([OwnedProductsEffects]),

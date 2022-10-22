@@ -13,34 +13,34 @@ public class ProductService : IProductsService
         _currentUserService = currentUserService;
     }
 
-    public Task<IEnumerable<Product>> GetAllAvailable()
+    public Task<IEnumerable<IProduct>> GetAllAvailable()
     {
         return _productRepository.GetAllAvailable();
     }
 
-    public Task<IEnumerable<Product>> GetAllOwned()
+    public Task<IEnumerable<IProduct>> GetAllOwned()
     {
         var userName = _currentUserService.GetCurrentUserName();
         return _productRepository.GetOwnedByUser(userName);
 
     }
 
-    public Task<Product> Create(Product product)
+    public Task<IProduct> Create(IProduct product)
     {
         var userName = _currentUserService.GetCurrentUserName();
         return _productRepository.Create(userName,product);
     }
 
-    public Task<Product> SetAmount(string productName, int amount)
-    {
-        return _productRepository.SetProductAmount(productName, amount);
-    }
 
-    public Task<Product> Delete(string productName)
+    public Task<IProduct> Delete(string productName)
     {
         var userId = _currentUserService.GetCurrentUserName();
         return _productRepository.DeleteProduct(userId, productName);
     }
 
+    public Task<IProduct> UpdateProduct(string productName, IProduct details)
+    {
+        return _productRepository.UpdateProduct(productName, details);
+    }
 }
 

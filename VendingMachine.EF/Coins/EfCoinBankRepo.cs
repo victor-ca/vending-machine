@@ -45,14 +45,15 @@ public class EfCoinBankRepo: ICoinBankRepo
         foreach (var denomination in CoinUtils.AllowedDenominations)
         {
             var coin = await _context.CoinBank.Where(c => c.CentDenominator == denomination && c.UserName == userName).FirstOrDefaultAsync();
+                coinBank.TryGetValue(denomination, out int amount);
             if (coin == null)
             {
                 _context.CoinBank.Add(
-                    new UserCoins() { Amount = coinBank[denomination], CentDenominator = denomination, UserName = userName });
+                    new UserCoins() { Amount = amount, CentDenominator = denomination, UserName = userName });
             }
             else
             {
-                coin.Amount = coinBank[denomination];
+                coin.Amount = amount;
             }
 
         }

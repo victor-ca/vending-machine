@@ -1,4 +1,3 @@
-using VendingMachine.Domain;
 using VendingMachine.Domain.Products;
 
 namespace VendingMachine.EF.Products;

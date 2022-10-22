@@ -18,7 +18,6 @@ export const autoNavigateAwayIfRequired = (
   {
     const nextPath = getNextRoute(user);
     const shouldBump = (currentUrl || '').indexOf(nextPath) !== 1;
-    console.warn({ bump: nextPath, shouldBump });
     if (shouldBump) {
       router.navigate([nextPath]);
     }

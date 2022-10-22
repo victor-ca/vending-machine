@@ -5,25 +5,32 @@
   <div>
     Available Funds: ${{ (availableAmount$ | async | number: "1.2-2")! }}
   </div>
+  <div>
+    Available Funds after purchase ${{
+      (availableAmount$ | async)! - amount * p.cost | number: "1.2-2"
+    }}
+  </div>
 
-  <input
-    #i
-    (input)="amount = +i.value"
-    [value]="amount"
-    placeholder="Amount"
-    type="number"
-  />
+  <div class="purchase-controls">
+    <input
+      #i
+      (input)="amount = +i.value"
+      [value]="amount"
+      placeholder="Amount"
+      type="number"
+    />
 
-  <div class="buy" *ngIf="availableAmount$ | async as fundsAvailable">
-    <button
-      nz-button
-      [disabled]="
-        !(p.amountAvailable >= amount && fundsAvailable >= +amount * p.cost)
-      "
-      [routerLink]="['..', '..']"
-    >
-      Buy for ${{ amount * p.cost }}
-    </button>
+    <div class="buy" *ngIf="availableAmount$ | async as fundsAvailable">
+      <button
+        nz-button
+        [disabled]="
+          !(p.amountAvailable >= amount && fundsAvailable >= +amount * p.cost)
+        "
+        (click)="purchase(p.name, amount)"
+      >
+        Buy for ${{ amount * p.cost | number: "1.2-2" }}
+      </button>
+    </div>
   </div>
 
   <div class="errors">

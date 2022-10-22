@@ -11,7 +11,7 @@ using VendingMachine.EF;
 namespace VendingMachine.EF.Migrations
 {
     [DbContext(typeof(VendingMachineDbContext))]
-    [Migration("20221022105734_InitialCreate")]
+    [Migration("20221022143347_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

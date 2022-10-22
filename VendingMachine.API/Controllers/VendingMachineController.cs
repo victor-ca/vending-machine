@@ -21,8 +21,8 @@ public class VendingMachineController : ControllerBase
     [Authorize(Roles = UserRoles.Buyer)]
     public async Task<IActionResult> PurchaseProduct(PurchaseRequest request)
     {
-        await _vendingMachineService.PurchaseProduct(request);
-        return Accepted();
+        var purchaseResult = await _vendingMachineService.PurchaseProduct(request);
+        return Ok(purchaseResult);
     }
 
     

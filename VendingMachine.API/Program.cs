@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using VendingMachine.Auth;
-using VendingMachine.Domain;
 using VendingMachine.Domain.Auth;
 using VendingMachine.Domain.CoinBank;
 using VendingMachine.Domain.Products;

@@ -1,21 +1,51 @@
 <h1>Create Product</h1>
 <ng-container *ngIf="formState$ | async as formState">
-  <form novalidate [ngrxFormState]="formState">
-    <label>
-      Name
-      <input [ngrxFormControlState]="formState.controls.name" type="text" />
-    </label>
-    <label>
-      Cost
-      <input [ngrxFormControlState]="formState.controls.cost" type="number" />
-    </label>
-    <label>
-      Amount
-      <input
-        [ngrxFormControlState]="formState.controls.amountAvailable"
-        type="number"
-      />
-    </label>
-    <button (click)="create()">Create</button>
+  <form nz-form novalidate [ngrxFormState]="formState">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">Name</nz-form-label>
+      <nz-form-control>
+        <nz-input-group>
+          <input
+            #productName
+            type="text"
+            nz-input
+            [ngrxFormControlState]="formState.controls.name"
+          />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">$ Cost</nz-form-label>
+      <nz-form-control>
+        <nz-input-group>
+          <input
+            #price
+            type="number"
+            nz-input
+            [ngrxFormControlState]="formState.controls.cost"
+          />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">Quantity</nz-form-label>
+      <nz-form-control>
+        <nz-input-group>
+          <input
+            #qty
+            type="number"
+            nz-input
+            [ngrxFormControlState]="formState.controls.amountAvailable"
+          />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
   </form>
+  <div class="center">
+    <button nz-button nzType="primary" nzSize="large" (click)="create()">
+      Create
+    </button>
+  </div>
 </ng-container>

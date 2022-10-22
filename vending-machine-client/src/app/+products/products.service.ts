@@ -30,20 +30,13 @@ export class ProductsServiceService {
     );
   }
 
-  public setProductAmount(
-    productName: string,
-    amount: number
+  public updateProduct(
+    originalName: string,
+    update: Product
   ): Observable<Product> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-    });
-
     return this.httpClient.put<Product>(
-      `${this.apiEndpoint}/products/${productName}/amount`,
-      JSON.stringify(amount),
-      {
-        headers,
-      }
+      `${this.apiEndpoint}/products/${originalName}`,
+      update
     );
   }
 }

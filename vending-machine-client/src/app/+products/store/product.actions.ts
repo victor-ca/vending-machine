@@ -28,14 +28,18 @@ export const createNewProductActions = {
   failure: createAction('create product failure'),
 };
 
-export const setProductAmountActions = {
+export const updateProductActions = {
   start: createAction(
     'set product amount start',
-    props<{ productName: string; amount: number }>()
+    props<{ originalName: string; update: Product }>()
   ),
   success: createAction(
     'set product amount success',
-    props<{ product: Product }>()
+    props<{ originalName: string; updatedProduct: Product }>()
   ),
-  failure: createAction('set product amount failure'),
+  failure: createAction('update product failure'),
 };
+
+export const randomizeNewProductFormAction = createAction(
+  'randomize New Product Form'
+);

@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using VendingMachine.Domain;
 using Microsoft.AspNetCore.Http;
 using VendingMachine.Domain.User;
 

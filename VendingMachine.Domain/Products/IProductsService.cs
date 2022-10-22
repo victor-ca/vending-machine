@@ -2,9 +2,10 @@ namespace VendingMachine.Domain.Products;
 
 public interface IProductsService
 {
-    Task<IEnumerable<Product>> GetAllAvailable();
-    Task<IEnumerable<Product>> GetAllOwned();
-    Task<Product> Create(Product product);
-    Task<Product> SetAmount(string productName, int amount);
-    Task<Product> Delete(string productName);
+    Task<IEnumerable<IProduct>> GetAllAvailable();
+    Task<IEnumerable<IProduct>> GetAllOwned();
+    Task<IProduct> Create(IProduct product);
+    
+    Task<IProduct> Delete(string productName);
+    Task<IProduct> UpdateProduct(string productName, IProduct details);
 }

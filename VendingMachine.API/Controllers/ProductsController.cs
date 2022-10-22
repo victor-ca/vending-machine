@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VendingMachine.Domain;
 using VendingMachine.Domain.Products;
 using VendingMachine.Domain.User;
 
@@ -21,35 +20,35 @@ public class ProductsController : ControllerBase
 
     [HttpGet("for-sale")]
     [Authorize(Roles = UserRoles.Buyer)]
-    public Task<IEnumerable<Product>> GetAll()
+    public Task<IEnumerable<IProduct>> GetAll()
     {
         return _productsService.GetAllAvailable();
     }
     
     [HttpGet("owned")]
     [Authorize(Roles = UserRoles.Seller)]
-    public Task<IEnumerable<Product>> GetOwned()
+    public Task<IEnumerable<IProduct>> GetOwned()
     {
         return _productsService.GetAllOwned();
     }
     
     [HttpPost]
     [Authorize(Roles = UserRoles.Seller)]
-    public Task<Product> Create([FromBody]Product product)
+    public Task<IProduct> Create([FromBody]Product product)
     {
         return _productsService.Create(product);
     }
     
-    [HttpPut("{productName}/amount")]
+    [HttpPut("{productName}")]
     [Authorize(Roles = UserRoles.Seller)]
-    public Task<Product> Create(string productName, [FromBody]int amount)
+    public Task<IProduct> Create(string productName, [FromBody]Product details)
     {
-        return _productsService.SetAmount(productName,amount);
+        return _productsService.UpdateProduct(productName, details);
     }
     
     [HttpDelete("{productName}")]
     [Authorize(Roles = UserRoles.Seller)]
-    public Task<Product> Delete(string productName)
+    public Task<IProduct> Delete(string productName)
     {
         return _productsService.Delete(productName);
     }

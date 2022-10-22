@@ -1,5 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 import { Product } from 'src/app/model/product';
+import { PurchaseResult } from '../service/purchase-result';
 import { CoinBank } from './vending-machine.store';
 
 export const insertCoinActions = {
@@ -36,8 +37,12 @@ export const purchaseProductActions = {
     props<{ productName: string; desiredAmount: number }>()
   ),
   success: createAction(
-    'load existing coins success',
-    props<{ coins: CoinBank }>()
+    'purchase product success',
+    props<{
+      result: PurchaseResult;
+      productName: string;
+      desiredAmount: number;
+    }>()
   ),
-  failure: createAction('load existing coins failure'),
+  failure: createAction('purchase product failure'),
 };

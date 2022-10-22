@@ -1,11 +1,33 @@
+@import "layout";
+
 :host {
   display: flex;
+  position: relative;
+  flex-direction: column;
+
+  @include desktop {
+    flex-direction: row;
+  }
 }
 
 section {
-  width: 50%;
   padding: 1em;
+
+  @include desktop {
+    width: 50%;
+  }
 }
+
+// .routed {
+//   position: absolute;
+//   top: 32px;
+//   left: 32px;
+//   right: 32px;
+//   bottom: 32px;
+//   background: white;
+//   border: 1px solid gray;
+//   box-shadow: 3px 3px rgba(0, 0, 0, 0.1);
+// }
 
 .actions {
   display: flex;

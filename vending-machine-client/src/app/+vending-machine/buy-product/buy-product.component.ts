@@ -3,6 +3,7 @@ import { ActivatedRoute, ActivatedRouteSnapshot } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { combineLatest, filter, map, Observable } from 'rxjs';
 import { Product } from 'src/app/model/product';
+import { purchaseProductActions } from '../store/vending-machine.actions';
 import {
   selectAvailableAmount,
   selectProductsForSale,
@@ -35,6 +36,12 @@ export class BuyProductComponent implements OnInit {
       map(([all, name]) => {
         return all.find((p) => p.name == name);
       })
+    );
+  }
+
+  purchase(productName: string, desiredAmount: number) {
+    this.store.dispatch(
+      purchaseProductActions.start({ desiredAmount, productName })
     );
   }
 }

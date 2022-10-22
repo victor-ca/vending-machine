@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { FormGroupState, onNgrxForms } from 'ngrx-forms';
+import { FormGroupState, setValue } from 'ngrx-forms';
 import { Observable, take } from 'rxjs';
-import { createNewProductActions } from '../../store/product.actions';
+import {
+  createNewProductActions,
+  randomizeNewProductFormAction,
+} from '../../store/product.actions';
 import { selectNewProductForm } from '../../store/product.selectors';
 import { NewProductForm } from '../../store/products.store';
 
@@ -16,7 +19,9 @@ export class NewProductComponent implements OnInit {
   constructor(private readonly store: Store) {
     this.formState$ = this.store.select(selectNewProductForm);
   }
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.store.dispatch(randomizeNewProductFormAction());
+  }
 
   create() {
     this.formState$.pipe(take(1)).subscribe(({ controls }) => {
@@ -31,5 +36,7 @@ export class NewProductComponent implements OnInit {
         })
       );
     });
+
+    this.store.dispatch(randomizeNewProductFormAction());
   }
 }

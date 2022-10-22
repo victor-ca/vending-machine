@@ -2,14 +2,15 @@ import { AuthService } from 'src/app/auth/auth.service';
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 
-import { concatMap, map, mergeMap, switchMap } from 'rxjs';
+import { catchError, concatMap, map, mergeMap, switchMap } from 'rxjs';
 import {
   createNewProductActions,
   deleteProductActions,
   loadOwnedProductsActions,
-  setProductAmountActions,
+  updateProductActions,
 } from './product.actions';
 import { ProductsServiceService as ProductsService } from '../products.service';
+import { createErrorAction } from 'src/app/auth/store/utils';
 
 @Injectable()
 export class OwnedProductsEffects {
@@ -29,9 +30,10 @@ export class OwnedProductsEffects {
     this.actions$.pipe(
       ofType(createNewProductActions.start),
       concatMap(({ product }) =>
-        this.productsService
-          .createProduct(product)
-          .pipe(map((product) => createNewProductActions.success({ product })))
+        this.productsService.createProduct(product).pipe(
+          map((product) => createNewProductActions.success({ product })),
+          catchError(createErrorAction(createNewProductActions.failure))
+        )
       )
     )
   );
@@ -49,11 +51,17 @@ export class OwnedProductsEffects {
 
   setAmount$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(setProductAmountActions.start),
-      concatMap(({ amount, productName }) =>
-        this.productsService
-          .setProductAmount(productName, amount)
-          .pipe(map((product) => setProductAmountActions.success({ product })))
+      ofType(updateProductActions.start),
+      concatMap(({ originalName, update }) =>
+        this.productsService.updateProduct(originalName, update).pipe(
+          map((product) =>
+            updateProductActions.success({
+              originalName,
+              updatedProduct: product,
+            })
+          ),
+          catchError(createErrorAction(updateProductActions.failure))
+        )
       )
     )
   );

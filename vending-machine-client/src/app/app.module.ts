@@ -26,6 +26,8 @@ import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { LoggedInUserComponent } from './auth/logged-in-user/logged-in-user.component';
 import { AuthEffects } from './auth/store/auth.effects';
+import { NzNotificationModule } from 'ng-zorro-antd/notification';
+import { AppNotificationsEffects } from './store/notification.effects';
 registerLocaleData(en);
 @NgModule({
   declarations: [AppComponent, LoggedInUserComponent],
@@ -33,9 +35,10 @@ registerLocaleData(en);
     BrowserModule,
     NzButtonModule,
     NgrxFormsModule,
+    NzNotificationModule,
     NzBreadCrumbModule,
     HttpClientModule,
-    EffectsModule.forRoot([AuthEffects]),
+    EffectsModule.forRoot([AuthEffects, AppNotificationsEffects]),
     StoreModule.forRoot(appReducer),
     !environment.production
       ? StoreDevtoolsModule.instrument({
@@ -44,7 +47,10 @@ registerLocaleData(en);
         })
       : [],
 
-    RouterModule.forRoot(appRoutes, { enableTracing: true }),
+    RouterModule.forRoot(
+      appRoutes
+      // ,{ enableTracing: true }
+    ),
     FormsModule,
     BrowserAnimationsModule,
     IconsProviderModule,
