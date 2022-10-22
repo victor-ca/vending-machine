@@ -24,6 +24,12 @@ public class EfProductRepository : IProductRepository
         var products = await _context.Products.Where(x => x.SellerId == userName).ToListAsync();
         return ToDomain(products);
     }
+    
+    public async Task<string> GetProductOwnerByName(string productName)
+    {
+        var product =  await GetProductByDpoByName(productName);
+        return product.SellerId;
+    }
 
     public async Task<IProduct> Create(string userId, IProduct product)
     {
@@ -49,6 +55,8 @@ public class EfProductRepository : IProductRepository
         await _context.SaveChangesAsync();
         return ToDomain(p);
     }
+
+    
 
     public async Task<IProduct> UpdateProduct(string productName, IProduct update)
     {
@@ -89,9 +97,9 @@ public class EfProductRepository : IProductRepository
         return p;
     }
 
-    public async Task<IProduct> DeleteProduct(string userId, string productName)
+    public async Task<IProduct> DeleteProduct(string productName)
     {
-        var product = await _context.Products.Where(x => x.SellerId == userId && x.Name == productName)
+        var product = await _context.Products.Where(x => x.Name == productName)
             .FirstOrDefaultAsync();
 
         if (product == null)

@@ -11,6 +11,7 @@ import {
 } from './product.actions';
 import { ProductsServiceService as ProductsService } from '../products.service';
 import { createErrorAction } from 'src/app/auth/store/utils';
+import { successToastAction } from 'src/app/store/app.actions';
 
 @Injectable()
 export class OwnedProductsEffects {
@@ -63,6 +64,13 @@ export class OwnedProductsEffects {
           catchError(createErrorAction(updateProductActions.failure))
         )
       )
+    )
+  );
+
+  confirmUpdate$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(updateProductActions.success),
+      map(() => successToastAction({ message: 'product create successfully' }))
     )
   );
 

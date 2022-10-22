@@ -1,9 +1,10 @@
 import { Inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { API_ENDPOINT } from './endpoint';
 import {
   catchError,
   map,
+  noop,
   Observable,
   of,
   ReplaySubject,
@@ -16,12 +17,13 @@ type AuthenticateResult = {
   refreshToken: string;
   expiration: string;
 };
+export type AuthenticatedUser = { name: string; isSeller: boolean };
 
 export type CurrentUser =
   | {
       isAuthenticated: false;
     }
-  | { isAuthenticated: true; name: string; isSeller: boolean };
+  | ({ isAuthenticated: true } & AuthenticatedUser);
 
 const tokenKey = 'vendingMachineToken';
 import jwtDecode from 'jwt-decode';
@@ -30,6 +32,17 @@ import jwtDecode from 'jwt-decode';
 })
 export class AuthService {
   currentUser$ = new ReplaySubject<CurrentUser>(1);
+  private getRefreshToken(): any {
+    try {
+      const { refreshToken } = JSON.parse(
+        localStorage.getItem(tokenKey)!
+      ) as AuthenticateResult;
+      return refreshToken;
+    } catch {
+      return '';
+    }
+  }
+
   getAuthToken(): Observable<string | undefined> {
     try {
       const authState = JSON.parse(
@@ -37,15 +50,7 @@ export class AuthService {
       ) as AuthenticateResult;
       const { token, refreshToken, expiration } = authState;
 
-      console.warn(
-        `refresh in ${
-          (new Date(expiration).getTime() - new Date().getTime()) / 1000
-        }s`
-      );
-
       if (new Date(expiration) < new Date()) {
-        console.warn(`refresh`);
-
         return this.refresh({
           accessToken: token,
           refreshToken,
@@ -66,10 +71,38 @@ export class AuthService {
       return of(undefined);
     }
   }
+
   logOut(): Observable<CurrentUser> {
+    var refreshToken = this.getRefreshToken();
+    if (refreshToken) {
+      const headers = new HttpHeaders({
+        'Content-Type': 'application/json',
+      });
+      this.httpClient
+        .post(`${this.apiEndpoint}/logout`, JSON.stringify(refreshToken), {
+          headers,
+        })
+        .subscribe(noop);
+    }
     localStorage.removeItem(tokenKey);
     this.currentUser$.next({ isAuthenticated: false });
+
     return of({ isAuthenticated: false });
+  }
+
+  getActiveSessionsCount(): Observable<number> {
+    return this.httpClient.get<number>(`${this.apiEndpoint}/active-sessions`);
+  }
+
+  dropAllOtherSessions(): Observable<unknown> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+    });
+    return this.httpClient.post(
+      `${this.apiEndpoint}/logout/all`,
+      JSON.stringify(this.getRefreshToken()),
+      { headers }
+    );
   }
 
   constructor(

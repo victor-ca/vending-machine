@@ -1,12 +1,24 @@
 import { Injectable } from '@angular/core';
-import { Actions, createEffect } from '@ngrx/effects';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 import { filter, tap } from 'rxjs';
+import { successToastAction } from './app.actions';
 
 @Injectable()
 export class AppNotificationsEffects {
-  loadProductsForSale$ = createEffect(
+  successToast$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(successToastAction),
+        tap(({ message }) =>
+          this.notificationService.success('Success', message)
+        )
+      ),
+    { dispatch: false }
+  );
+
+  failActionToast$ = createEffect(
     () =>
       this.actions$.pipe(
         filter((a) => a.type.includes('failure')),

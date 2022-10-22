@@ -42,4 +42,7 @@ public class UsersController : ControllerBase
         var authResult = await _authService.Register(registerModel);
         return Ok(authResult);
     }
+    
+    
+   
 }

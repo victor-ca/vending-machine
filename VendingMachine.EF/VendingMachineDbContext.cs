@@ -12,12 +12,22 @@ public class VendingMachineDbContext :  IdentityDbContext<VendingMachineUserDpo>
 
     public DbSet<ProductDpo> Products { get; set; } = null!;
     public DbSet<UserCoins> CoinBank { get; set; } = null!;
+    public DbSet<UserSession> UserSessions { get; set; } = null!;
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<ProductDpo>()
             .HasKey(t => t.Name);
+        
+        modelBuilder.Entity<UserSession>()
+            .HasKey(t => t.RefreshToken);
+        modelBuilder.Entity<UserSession>()
+            .HasOne<VendingMachineUserDpo>()
+            .WithMany()
+            .HasForeignKey(p=>p.UserName)
+            .HasPrincipalKey(s => s.UserName);
             
         modelBuilder.Entity<UserCoins>()
             .HasKey(t => new { t.CentDenominator, t.UserName});

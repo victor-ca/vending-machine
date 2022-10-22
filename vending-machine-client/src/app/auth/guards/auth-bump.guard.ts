@@ -23,7 +23,6 @@ export class AuthBumperGuard implements CanActivate {
     | Promise<boolean | UrlTree>
     | boolean
     | UrlTree {
-    console.warn({ route, state });
     return this.authService.currentUser$.pipe(
       tap((u) => autoNavigateAwayIfRequired(u, this.router, state.url)),
       map(() => true)

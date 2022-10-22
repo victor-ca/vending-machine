@@ -48,6 +48,7 @@ public class AuthService : IAuthService, ICurrentUserService
 
         return userName;
     }
+    
 }
 
 public class NoUserInContextException : Exception

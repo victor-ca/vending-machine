@@ -11,7 +11,7 @@ using VendingMachine.EF;
 namespace VendingMachine.EF.Migrations
 {
     [DbContext(typeof(VendingMachineDbContext))]
-    [Migration("20221022143347_InitialCreate")]
+    [Migration("20221022160649_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -187,6 +187,25 @@ namespace VendingMachine.EF.Migrations
                     b.ToTable("Products");
                 });
 
+            modelBuilder.Entity("VendingMachine.EF.Users.UserSession", b =>
+                {
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("RefreshTokenExpiryTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("RefreshToken");
+
+                    b.HasIndex("UserName");
+
+                    b.ToTable("UserSessions");
+                });
+
             modelBuilder.Entity("VendingMachine.EF.Users.VendingMachineUserDpo", b =>
                 {
                     b.Property<string>("Id")
@@ -228,12 +247,6 @@ namespace VendingMachine.EF.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("RefreshToken")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("RefreshTokenExpiryTime")
-                        .HasColumnType("TEXT");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("TEXT");
@@ -324,6 +337,16 @@ namespace VendingMachine.EF.Migrations
                     b.HasOne("VendingMachine.EF.Users.VendingMachineUserDpo", null)
                         .WithMany()
                         .HasForeignKey("SellerId")
+                        .HasPrincipalKey("UserName")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("VendingMachine.EF.Users.UserSession", b =>
+                {
+                    b.HasOne("VendingMachine.EF.Users.VendingMachineUserDpo", null)
+                        .WithMany()
+                        .HasForeignKey("UserName")
                         .HasPrincipalKey("UserName")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

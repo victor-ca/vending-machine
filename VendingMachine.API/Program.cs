@@ -41,7 +41,13 @@ services.AddTransient<IUserRepository, EfUserRepository>();
 services.AddTransient<IAuthService, AuthService>();
 services.AddTransient<ICurrentUserService, AuthService>();
 services.AddTransient<IProductRepository, EfProductRepository>();
-services.AddTransient<IProductsService, ProductService>();
+services.AddTransient<IProductsService>(provider =>
+{
+    var productRepo = provider.GetService<IProductRepository>()!;
+    var currentUserService = provider.GetService<ICurrentUserService>()!;
+    var inner = new ProductService(productRepo!, currentUserService)!;
+    return new OwnedOnlyProductService(inner, productRepo, currentUserService);
+});
 
 services.AddTransient<IVendingMachineService, VendingMachineService>();
 services.AddTransient<ICoinBankRepo, EfCoinBankRepo>();

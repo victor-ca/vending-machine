@@ -35,7 +35,7 @@ public class ProductService : IProductsService
     public Task<IProduct> Delete(string productName)
     {
         var userId = _currentUserService.GetCurrentUserName();
-        return _productRepository.DeleteProduct(userId, productName);
+        return _productRepository.DeleteProduct(productName);
     }
 
     public Task<IProduct> UpdateProduct(string productName, IProduct details)

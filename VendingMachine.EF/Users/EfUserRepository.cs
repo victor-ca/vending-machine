@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Authentication;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using VendingMachine.Auth;
 using VendingMachine.Domain.Auth;
 using VendingMachine.Domain.User;
@@ -9,34 +10,38 @@ using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegiste
 
 namespace VendingMachine.EF.Users;
 
-public class EfUserRepository: IUserRepository
+public class EfUserRepository : IUserRepository
 {
-    
     private readonly UserManager<VendingMachineUserDpo> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly ITokenGenerator _tokenGenerator;
     private readonly TokenGeneratorConfig _config;
+    private readonly VendingMachineDbContext _context;
 
     public EfUserRepository(
         UserManager<VendingMachineUserDpo> userManager,
         RoleManager<IdentityRole> roleManager,
         ITokenGenerator tokenGenerator,
-        TokenGeneratorConfig config
-        )
+        TokenGeneratorConfig config,
+        VendingMachineDbContext context
+    )
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _tokenGenerator = tokenGenerator;
         _config = config;
+        _context = context;
     }
+
     public async Task<ITokenCredentials> GetCredentials(string userName, string password)
     {
         var user = await _userManager.FindByNameAsync(userName);
-        var areCredsValid = user != null && await _userManager.CheckPasswordAsync(user, password); 
+        var areCredsValid = user != null && await _userManager.CheckPasswordAsync(user, password);
         if (!areCredsValid)
         {
             throw new InvalidCredentialException();
         }
+
         var userRoles = await _userManager.GetRolesAsync(user!);
         var authClaims = new List<Claim>
         {
@@ -44,16 +49,23 @@ public class EfUserRepository: IUserRepository
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
         authClaims.AddRange(userRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole)));
-        authClaims.Add(new Claim("userName",userName));
-        bool isSeller = userRoles.FirstOrDefault(x => x == UserRoles.Seller) !=  null; 
-        authClaims.Add(new Claim("isSeller",isSeller?"true":"false"));
-        
+        authClaims.Add(new Claim("userName", userName));
+        bool isSeller = userRoles.FirstOrDefault(x => x == UserRoles.Seller) != null;
+        authClaims.Add(new Claim("isSeller", isSeller ? "true" : "false"));
+
         var token = _tokenGenerator.CreateToken(authClaims);
         var refreshToken = _tokenGenerator.GenerateRefreshToken();
-        user.RefreshToken = refreshToken;
-        user.RefreshTokenExpiryTime = DateTime.Now.AddDays(_config.RefreshTokenValidityInDays);
+
+        _context.UserSessions.Add(new UserSession()
+        {
+            RefreshToken = refreshToken,
+            UserName = userName,
+            RefreshTokenExpiryTime = DateTime.Now.AddDays(_config.RefreshTokenValidityInDays)
+        });
+
         await _userManager.UpdateAsync(user);
-        
+        await _context.SaveChangesAsync();
+
         return new TokenCredentials
         {
             Token = new JwtSecurityTokenHandler().WriteToken(token),
@@ -64,23 +76,27 @@ public class EfUserRepository: IUserRepository
 
     public async Task<ITokenCredentials> GetPrincipalFromExpiredToken(string accessToken, string refreshToken)
     {
-        
         var principal = _tokenGenerator.GetPrincipalFromExpiredToken(accessToken);
         if (principal == null)
         {
-          throw new Exception("Invalid access token or refresh token");
+            throw new Exception("Invalid access token or refresh token");
         }
+
         string username = principal.Identity!.Name!;
         var user = await _userManager.FindByNameAsync(username);
-        if (user == null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
+        var userSession = await _context.UserSessions
+            .Where(x => x.UserName == username && x.RefreshToken == refreshToken).FirstAsync();
+        if (user == null || userSession == null || userSession.RefreshTokenExpiryTime <= DateTime.Now)
         {
             throw new Exception("Invalid access token or refresh token");
         }
+
         var newAccessToken = _tokenGenerator.CreateToken(principal.Claims.ToList());
         var newRefreshToken = _tokenGenerator.GenerateRefreshToken();
 
-        user.RefreshToken = newRefreshToken;
+        userSession.RefreshToken = newRefreshToken;
         await _userManager.UpdateAsync(user);
+        await _context.SaveChangesAsync();
         return new TokenCredentials
         {
             Token = new JwtSecurityTokenHandler().WriteToken(newAccessToken),
@@ -89,10 +105,42 @@ public class EfUserRepository: IUserRepository
         };
     }
 
+    public async Task<int> GetValidSessionsCount(string userName)
+    {
+        var now = DateTime.Now;
+        var sessions = await _context.UserSessions.Where(x => x.UserName == userName && x.RefreshTokenExpiryTime > now)
+            .ToListAsync();
+        return sessions.Count;
+    }
+
+    public async Task DropOtherSessions(string userName, string keepRefreshToken)
+    {
+        var activeSessions = _context.UserSessions.Where(x =>
+            x.UserName == userName
+            && x.RefreshToken != keepRefreshToken);
+
+        _context.UserSessions.RemoveRange(activeSessions);
+
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DropSession(string userName, string dropToken)
+    {
+        var activeSession = await _context.UserSessions.FirstOrDefaultAsync(x =>
+            x.UserName == userName
+            && x.RefreshToken == dropToken);
+
+        if (activeSession != null)
+        {
+            _context.UserSessions.Remove(activeSession);
+            await _context.SaveChangesAsync();
+        }
+    }
+
     public async Task CreateBuyer(string userName, string password)
     {
-      var user = await CreateUser(userName, password);
-      await AssignRole(user, UserRoles.Buyer);
+        var user = await CreateUser(userName, password);
+        await AssignRole(user, UserRoles.Buyer);
     }
 
     public async Task CreateSeller(string userName, string password)
@@ -107,6 +155,7 @@ public class EfUserRepository: IUserRepository
         {
             await _roleManager.CreateAsync(new IdentityRole(role));
         }
+
         await _userManager.AddToRoleAsync(user, role);
     }
 
@@ -131,13 +180,11 @@ public class EfUserRepository: IUserRepository
 
         return user;
     }
-    
 }
 
 internal class UserAlreadyExistException : Exception
 {
-    public UserAlreadyExistException(string userName): base($"user {userName} already exists")
+    public UserAlreadyExistException(string userName) : base($"user {userName} already exists")
     {
-     
     }
 }
