@@ -84,19 +84,21 @@ public class EfUserRepository : IUserRepository
 
         string username = principal.Identity!.Name!;
         var user = await _userManager.FindByNameAsync(username);
+
         var userSession = await _context.UserSessions
-            .Where(x => x.UserName == username && x.RefreshToken == refreshToken).FirstAsync();
-        if (user == null || userSession == null || userSession.RefreshTokenExpiryTime <= DateTime.Now)
+            .Where(x =>
+                x.UserName == username
+                && x.RefreshToken == refreshToken
+                && x.RefreshTokenExpiryTime > DateTime.Now
+            ).FirstOrDefaultAsync();
+
+        if (user == null || userSession == null)
         {
             throw new Exception("Invalid access token or refresh token");
         }
 
         var newAccessToken = _tokenGenerator.CreateToken(principal.Claims.ToList());
-        var newRefreshToken = _tokenGenerator.GenerateRefreshToken();
 
-        userSession.RefreshToken = newRefreshToken;
-        await _userManager.UpdateAsync(user);
-        await _context.SaveChangesAsync();
         return new TokenCredentials
         {
             Token = new JwtSecurityTokenHandler().WriteToken(newAccessToken),

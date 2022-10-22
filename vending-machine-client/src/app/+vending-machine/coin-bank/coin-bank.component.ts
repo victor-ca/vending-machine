@@ -2,7 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { CoinStack } from '../coin-stack';
-import { insertCoinActions } from '../store/vending-machine.actions';
+import {
+  insertCoinActions,
+  resetCoinActions,
+} from '../store/vending-machine.actions';
 import {
   selectAvailableAmount,
   selectCoinStacks,
@@ -20,10 +23,12 @@ export class CoinBankComponent implements OnInit {
   constructor(private store: Store) {}
   ngOnInit(): void {
     this.coinStacks$ = this.store.select(selectCoinStacks);
-
     this.availableAmount$ = this.store.select(selectAvailableAmount);
   }
   insertCoin(denomination: number) {
     this.store.dispatch(insertCoinActions.start({ denomination }));
+  }
+  resetCoins() {
+    this.store.dispatch(resetCoinActions.start());
   }
 }

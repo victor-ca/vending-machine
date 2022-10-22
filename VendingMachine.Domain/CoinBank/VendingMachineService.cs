@@ -31,12 +31,17 @@ public class VendingMachineService : IVendingMachineService
 
     public async Task<PurchaseResult> PurchaseProduct(PurchaseRequest request)
     {
-        var coins = await GetAvailableCoins();
         var product = await _productRepository.GetProductByName(request.ProductName);
-        var purchaseResult =  AttemptPurchase(product, request.DesiredAmount, coins);
+        if (request.DesiredAmount > product.AmountAvailable)
+        {
+            throw new ProductAmountUnavailableException(request, product.AmountAvailable);
+        }
+
+        var coins = await GetAvailableCoins();
+        var purchaseResult = AttemptPurchase(product, request.DesiredAmount, coins);
         await _productRepository.SetProductAmount(product.Name, product.AmountAvailable -= request.DesiredAmount);
         var userName = _currentUserService.GetCurrentUserName();
-        await _coinBankRepo.ResetUserCoinsTo(userName,purchaseResult.NewCoinBankState);
+        await _coinBankRepo.ResetUserCoinsTo(userName, purchaseResult.NewCoinBankState);
 
         return purchaseResult;
     }
@@ -44,7 +49,7 @@ public class VendingMachineService : IVendingMachineService
     private PurchaseResult AttemptPurchase(IProduct product, int amountToPurchase,
         Dictionary<int, int> coins)
     {
-        var totalCostInCents =  product.Cost * amountToPurchase * 100;
+        var totalCostInCents = product.Cost * amountToPurchase * 100;
         var actualSpentInCents = 0;
         var unpaidAmountInCents = totalCostInCents;
         var remainingCoins = CoinUtils.CoinDictToCoinArraySortedDescending(coins).ToList();
@@ -54,14 +59,14 @@ public class VendingMachineService : IVendingMachineService
         {
             if (remainingCoins.Count == 0)
             {
-                throw new NotEnoughCoinsException();
+                throw new NotEnoughCoinsException((int)unpaidAmountInCents);
             }
 
-            var coinToSpend = remainingCoins.FirstOrDefault(coin => coin < unpaidAmountInCents);
-            if (coinToSpend == 0)
-            {
-                coinToSpend = remainingCoins.First();
-            }
+            var spendCandidates = remainingCoins.Where(coin => coin <= unpaidAmountInCents).ToList();
+
+
+            var coinToSpend = spendCandidates.Count == 0 ? remainingCoins.First() : spendCandidates.Max();
+
             usedCoins.Add(coinToSpend);
             remainingCoins.Remove(coinToSpend);
 
@@ -74,9 +79,9 @@ public class VendingMachineService : IVendingMachineService
             ActualSpentInCents = actualSpentInCents,
             PurchaseAmountInCents = (int)totalCostInCents,
             ChangeAmountInCents = (int)Math.Abs(unpaidAmountInCents),
-            UsedCoins =  CoinUtils.CoinListToCoinDict(usedCoins)
+            UsedCoins = CoinUtils.CoinListToCoinDict(usedCoins)
         };
-        
+
         var changeCoins = new List<int>();
         while (unpaidAmountInCents < 0)
         {
@@ -104,14 +109,26 @@ public class VendingMachineService : IVendingMachineService
     }
 }
 
+public class ProductAmountUnavailableException : Exception
+{
+    public ProductAmountUnavailableException(PurchaseRequest request, int availableAmount) : base(
+        $" only {availableAmount} of the {request.DesiredAmount} items of {request.ProductName} are available")
+    {
+    }
+}
+
 internal class ChangeAmountCannotBeFormedUsingSpecifiedDenominatorException : Exception
 {
-    public ChangeAmountCannotBeFormedUsingSpecifiedDenominatorException(decimal change):base($"a change of {change} cannot be returned using allowed denominators")
+    public ChangeAmountCannotBeFormedUsingSpecifiedDenominatorException(decimal change) : base(
+        $"The change of {change} cents cannot be returned using allowed denominations")
     {
-        
     }
 }
 
 internal class NotEnoughCoinsException : Exception
 {
+    public NotEnoughCoinsException(int howMany) : base(
+        $"{howMany} more cents are required to complete this transaction")
+    {
+    }
 }

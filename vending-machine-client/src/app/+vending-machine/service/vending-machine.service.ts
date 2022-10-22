@@ -46,6 +46,6 @@ export class VendingMachineService {
   }
 
   public reset(): Observable<unknown> {
-    return this.httpClient.delete(`${this.apiEndpoint}/coins`);
+    return this.httpClient.post(`${this.apiEndpoint}/reset`, undefined);
   }
 }

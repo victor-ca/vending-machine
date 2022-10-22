@@ -2,7 +2,15 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 
-import { catchError, concatMap, map, of, switchMap, tap } from 'rxjs';
+import {
+  catchError,
+  concatMap,
+  exhaustMap,
+  map,
+  of,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { createErrorAction } from 'src/app/auth/store/utils';
 import { VendingMachineService } from '../service/vending-machine.service';
 import {
@@ -10,6 +18,7 @@ import {
   loadExistingCoins,
   loadProductsForSaleActions,
   purchaseProductActions,
+  resetCoinActions,
 } from './vending-machine.actions';
 import { CoinBank } from './vending-machine.store';
 
@@ -21,6 +30,14 @@ export class VendingMachineEffects {
       concatMap(({ denomination }) =>
         this.vendingMachineService.insertCoin(denomination)
       ),
+      map(() => insertCoinActions.success())
+    )
+  );
+
+  resetCoins$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(resetCoinActions.start),
+      exhaustMap(() => this.vendingMachineService.reset()),
       map(() => insertCoinActions.success())
     )
   );
@@ -67,14 +84,18 @@ export class VendingMachineEffects {
         tap(({ desiredAmount, productName, result }) => {
           this.notificationService.blank(
             'Purchase Successful',
-            `Successfully bought ${desiredAmount} x [${productName}] ($${
-              result.purchaseAmountInCents / 100
-            })
-spending in coins $${result.actualSpentInCents / 100}
-using ${printCoins(result.usedCoins)}
-with a change of $${result.changeAmountInCents / 100}
-returned using ${printCoins(result.changeCoins)}
-            `,
+            [
+              `Successfully bought ${desiredAmount} x [${productName}] ($${
+                result.purchaseAmountInCents / 100
+              })`,
+              `spending in coins $${result.actualSpentInCents / 100}`,
+              `using ${printCoins(result.usedCoins)}`,
+              `change: $${result.changeAmountInCents / 100}`,
+              result.changeAmountInCents &&
+                `returned using ${printCoins(result.changeCoins)}`,
+            ]
+              .filter(Boolean)
+              .join('\n'),
             {
               nzDuration: 0,
               nzPlacement: 'bottomRight',

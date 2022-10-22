@@ -13,6 +13,11 @@ export const insertCoinActions = {
   success: createAction('insert coin success'),
 };
 
+export const resetCoinActions = {
+  start: createAction('reset coin start'),
+  success: createAction('insert coin success'),
+};
+
 export const loadProductsForSaleActions = {
   start: createAction('load products for sale start'),
   success: createAction(

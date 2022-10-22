@@ -4,6 +4,7 @@ import {
   loadExistingCoins,
   loadProductsForSaleActions,
   purchaseProductActions,
+  resetCoinActions,
 } from './vending-machine.actions';
 import { CoinKey, VendingMachineState } from './vending-machine.store';
 
@@ -52,6 +53,10 @@ export const vendingMachineReducer = createReducer<VendingMachineState>(
       ...emptyCoinBank,
       ...coins,
     },
+  })),
+  on(resetCoinActions.start, (s) => ({
+    ...s,
+    coinBank: emptyCoinBank,
   })),
   on(loadProductsForSaleActions.success, (s, { products }) => ({
     ...s,
